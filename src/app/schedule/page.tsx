@@ -54,7 +54,7 @@ import { Calendar, Clock, MapPin, Plus, MoreHorizontal, Pencil, Trash2 } from 'l
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/language-context';
 
-const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 const getAppointmentSchema = (t: (key: string) => string) => z.object({
   course: z.string().min(2, { message: t('zod.course.min') }),
@@ -115,7 +115,6 @@ export default function SchedulePage() {
   useEffect(() => {
     const jsDayIndex = new Date().getDay();
     const appDayIndex = jsDayIndex === 0 ? 6 : jsDayIndex - 1;
-    // Ensure we don't select Sunday if it's not in the list
     if (appDayIndex < daysOfWeek.length) {
       setSelectedDay(daysOfWeek[appDayIndex]);
     }
@@ -321,7 +320,7 @@ export default function SchedulePage() {
           </DialogContent>
         </Dialog>
       
-      <div className="grid grid-cols-6 gap-1 md:gap-2">
+      <div className="grid grid-cols-7 gap-1 md:gap-2">
         {daysOfWeek.map((day) => (
           <button
             key={day}

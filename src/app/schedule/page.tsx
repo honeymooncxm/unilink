@@ -156,14 +156,18 @@ export default function SchedulePage() {
     startTime: values.startTime,
     endTime: values.endTime,
     type: values.type,
+    timeRange: `${values.startTime} - ${values.endTime}`, // Формируем timeRange
+    id: editingAppointment ? editingAppointment.id : crypto.randomUUID(), // Добавляем id для updateAppointment
   };
-  
+
   if (editingAppointment) {
     await updateAppointment(editingAppointment.id, appointmentData);
   } else {
-    await addAppointment(appointmentData);
+    // Удаляем id для addAppointment, если он не требуется
+    const { id, ...addAppointmentData } = appointmentData;
+    await addAppointment(addAppointmentData);
   }
-  
+
   await fetchAppointments();
   setIsDialogOpen(false);
   setEditingAppointment(null);

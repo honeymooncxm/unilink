@@ -1,13 +1,13 @@
 export type Appointment = {
   id: string; // Firestore IDs are strings
-  day: string;
+  day: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
   timeRange: string;
   course: string;
   professor: string;
   room: string;
-  type: 'Lecture' | 'Seminar' | 'Lab';
-  startTime?: string;
-  endTime?: string;
+  type: "Lecture" | "Seminar" | "Lab";
+  startTime: string; // Сделать обязательным
+  endTime: string; // Сделать обязательным
 };
 
 export type User = {

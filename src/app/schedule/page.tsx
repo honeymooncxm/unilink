@@ -1,10 +1,12 @@
+
 "use client";
 
 import { useState, useMemo } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from '@/components/ui/button';
+
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
@@ -13,8 +15,23 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Form,
   FormControl,
@@ -33,7 +50,7 @@ import {
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge";
 import { appointments as initialAppointments, type Appointment } from '@/lib/data';
-import { Calendar, Clock, MapPin, Plus, User } from 'lucide-react';
+import { Calendar, Clock, MapPin, Plus, User, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -48,22 +65,29 @@ const appointmentSchema = z.object({
   type: z.enum(["Lecture", "Seminar", "Lab"]),
 });
 
+const defaultFormValues = {
+  course: "",
+  professor: "",
+  room: "",
+  day: "Monday" as const,
+  startTime: "09:00",
+  endTime: "10:30",
+  type: "Lecture" as const,
+};
+
 export default function SchedulePage() {
   const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
   const [selectedDay, setSelectedDay] = useState('Monday');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
+  const [deletingAppointment, setDeletingAppointment] = useState<Appointment | null>(null);
+
+  const isEditing = !!editingAppointment;
 
   const form = useForm<z.infer<typeof appointmentSchema>>({
     resolver: zodResolver(appointmentSchema),
-    defaultValues: {
-      course: "",
-      professor: "",
-      room: "",
-      day: "Monday",
-      startTime: "09:00",
-      endTime: "10:30",
-      type: "Lecture",
-    },
+    defaultValues: defaultFormValues,
   });
 
   const filteredAppointments = useMemo(() => {
@@ -72,37 +96,78 @@ export default function SchedulePage() {
       .sort((a, b) => a.timeRange.localeCompare(b.timeRange));
   }, [appointments, selectedDay]);
 
+  function handleEditClick(appointment: Appointment) {
+    setEditingAppointment(appointment);
+    const [startTime, endTime] = appointment.timeRange.split(' - ');
+    form.reset({
+        ...appointment,
+        startTime,
+        endTime,
+    });
+    setIsDialogOpen(true);
+  }
+
+  function handleDeleteClick(appointment: Appointment) {
+      setDeletingAppointment(appointment);
+      setIsDeleteDialogOpen(true);
+  }
+
+  function confirmDelete() {
+      if (deletingAppointment) {
+          setAppointments(prev => prev.filter(app => app.id !== deletingAppointment.id));
+          setDeletingAppointment(null);
+      }
+      setIsDeleteDialogOpen(false);
+  }
+
   function onSubmit(values: z.infer<typeof appointmentSchema>) {
-    const newAppointment: Appointment = {
-      id: appointments.length + 1,
-      day: values.day,
-      timeRange: `${values.startTime} - ${values.endTime}`,
-      course: values.course,
-      professor: values.professor,
-      room: values.room,
-      type: values.type,
-    };
-    setAppointments((prev) => [...prev, newAppointment]);
-    form.reset({ ...values, course: '', professor: '', room: '' });
+    if (editingAppointment) {
+        const updatedAppointment: Appointment = {
+            ...editingAppointment,
+            ...values,
+            timeRange: `${values.startTime} - ${values.endTime}`,
+        };
+        setAppointments(prev => prev.map(app => app.id === editingAppointment.id ? updatedAppointment : app));
+    } else {
+        const newAppointment: Appointment = {
+          id: Date.now(),
+          day: values.day,
+          timeRange: `${values.startTime} - ${values.endTime}`,
+          course: values.course,
+          professor: values.professor,
+          room: values.room,
+          type: values.type,
+        };
+        setAppointments((prev) => [...prev, newAppointment]);
+    }
+    
     setIsDialogOpen(false);
+    setEditingAppointment(null);
+    form.reset(defaultFormValues);
   }
 
   return (
     <div className="py-6 space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Your Schedule</h1>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add
-            </Button>
-          </DialogTrigger>
+        <Button onClick={() => setIsDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add
+        </Button>
+      </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) {
+            setEditingAppointment(null);
+            form.reset(defaultFormValues);
+        }
+      }}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Add Appointment</DialogTitle>
+              <DialogTitle>{isEditing ? 'Edit Appointment' : 'Add Appointment'}</DialogTitle>
               <DialogDescription>
-                Fill in the details to add a new appointment to your schedule.
+                {isEditing ? 'Update the details of your appointment.' : 'Fill in the details to add a new appointment.'}
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -205,13 +270,12 @@ export default function SchedulePage() {
                   />
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Add Appointment</Button>
+                  <Button type="submit">{isEditing ? 'Save Changes' : 'Add Appointment'}</Button>
                 </DialogFooter>
               </form>
             </Form>
           </DialogContent>
         </Dialog>
-      </div>
       
       <div className="flex space-x-1 sm:space-x-2 overflow-x-auto pb-2 -mx-4 px-4">
         {daysOfWeek.map(day => (
@@ -243,7 +307,7 @@ export default function SchedulePage() {
                       <p className="font-semibold text-sm">{endTime}</p>
                     </div>
                     <div className="border-l border-border/80 h-auto"></div>
-                    <div className="flex-grow flex justify-between items-center">
+                    <div className="flex-grow flex justify-between items-start">
                         <div className="space-y-1">
                             <h3 className="font-bold text-base leading-tight">{appointment.course}</h3>
                             <div className="text-muted-foreground text-xs flex items-center gap-4">
@@ -255,14 +319,33 @@ export default function SchedulePage() {
                                 <span>{appointment.professor}</span>
                             </div>
                         </div>
-                        <Badge className={cn(
-                          "text-xs font-bold self-start",
-                          { "bg-primary/90 text-primary-foreground": appointment.type === 'Lecture' },
-                          { "bg-amber-400 text-amber-950 hover:bg-amber-400/80": appointment.type === 'Lab' },
-                          { "bg-sky-400 text-sky-950 hover:bg-sky-400/80": appointment.type === 'Seminar' }
-                        )}>
-                          {appointment.type}
-                        </Badge>
+                        <div className='flex items-center'>
+                          <Badge className={cn(
+                            "text-xs font-bold",
+                            { "bg-primary/90 text-primary-foreground": appointment.type === 'Lecture' },
+                            { "bg-amber-400 text-amber-950 hover:bg-amber-400/80": appointment.type === 'Lab' },
+                            { "bg-sky-400 text-sky-950 hover:bg-sky-400/80": appointment.type === 'Seminar' }
+                          )}>
+                            {appointment.type}
+                          </Badge>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEditClick(appointment)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                <span>Edit</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDeleteClick(appointment)} className="text-destructive focus:text-destructive">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>Delete</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -275,6 +358,24 @@ export default function SchedulePage() {
           )}
         </div>
       </div>
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete this appointment from your schedule.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+                onClick={confirmDelete} 
+                className={buttonVariants({ variant: "destructive" })}>
+                Delete
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

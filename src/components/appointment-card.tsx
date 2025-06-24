@@ -19,7 +19,7 @@ export function AppointmentCard({ appointment }: AppointmentCardProps) {
                 </CardDescription>
             </div>
             <Badge variant={appointment.type === 'Lecture' ? 'default' : 'secondary'}>
-                {appointment.status}
+                {appointment.type}
             </Badge>
         </div>
       </CardHeader>

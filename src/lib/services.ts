@@ -116,7 +116,6 @@ export async function getUserProfile(): Promise<User> {
     return { id: userDocSnap.id, ...userDocSnap.data() } as User;
   } else {
     // If user doesn't exist, create them with initial data
-    console.log("No user found, seeding initial data...");
     await setDoc(userDocRef, initialUser);
     
     const batch = writeBatch(db);
@@ -136,7 +135,6 @@ export async function getUserProfile(): Promise<User> {
     }
 
     await batch.commit();
-    console.log("Initial data seeded.");
 
     return { id: MOCK_USER_ID, ...initialUser };
   }

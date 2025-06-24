@@ -44,6 +44,7 @@ export default function RootLayout({
                         <h1 className="text-lg font-semibold">UniLink</h1>
                     </div>
                 </SidebarHeader>
+                <div className="flex-grow" />
                 <SidebarContent>
                     <MainNav />
                 </SidebarContent>

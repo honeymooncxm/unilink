@@ -12,12 +12,25 @@ import {
 import { MainNav } from '@/components/main-nav';
 import { UniLinkLogo } from '@/components/icons';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Search, Bug } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const metadata: Metadata = {
   title: 'UniLink Schedule',
   description: 'A stunning university platform to streamline student appointments.',
 };
+
+const issues = [
+    { id: 'BUG-101', description: 'Sidebar not collapsing on mobile.' },
+    { id: 'TASK-203', description: 'Implement dark mode for profile page.' },
+]
 
 export default function RootLayout({
   children,
@@ -59,6 +72,28 @@ export default function RootLayout({
               <Button variant="ghost" size="icon">
                 <Search className="size-5" />
               </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="relative">
+                        <Bug className="h-5 w-5" />
+                        <div className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-xs text-destructive-foreground">
+                            {issues.length}
+                        </div>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80">
+                    <DropdownMenuLabel>Issues & Tasks</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {issues.map(issue => (
+                        <DropdownMenuItem key={issue.id} className="items-start">
+                           <div className="flex flex-col gap-0.5">
+                             <p className="font-semibold">{issue.id}</p>
+                             <p className="text-muted-foreground">{issue.description}</p>
+                           </div>
+                        </DropdownMenuItem>
+                    ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </header>
             <main className="flex-1 p-4 md:p-6">{children}</main>
           </SidebarInset>

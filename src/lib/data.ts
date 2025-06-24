@@ -18,6 +18,14 @@ export type User = {
   group: string;
 };
 
+export type Client = {
+  id: number;
+  name: string;
+  email: string;
+  university: string;
+  avatarUrl: string;
+};
+
 export const user: User = {
   name: 'Sunnatilla Kholdarboeva',
   description: 'Computer Science student passionate about AI and machine learning. Dedicated to exploring the frontiers of technology and applying knowledge to solve real-world problems.',
@@ -73,5 +81,29 @@ export const appointments: Appointment[] = [
     room: 'Room 210',
     type: 'Lecture',
     status: 'Лекция',
+  },
+];
+
+export const clients: Client[] = [
+  {
+    id: 1,
+    name: 'Alisher Usmanov',
+    email: 'alisher@example.com',
+    university: 'Tashkent State University of Economics',
+    avatarUrl: 'https://i.pravatar.cc/150?u=alisher@example.com',
+  },
+  {
+    id: 2,
+    name: 'Dildora Alimova',
+    email: 'dildora@example.com',
+    university: 'National University of Uzbekistan',
+    avatarUrl: 'https://i.pravatar.cc/150?u=dildora@example.com',
+  },
+  {
+    id: 3,
+    name: 'Bekzod Abdullaev',
+    email: 'bekzod@example.com',
+    university: 'Tashkent University of Information Technologies',
+    avatarUrl: 'https://i.pravatar.cc/150?u=bekzod@example.com',
   },
 ];

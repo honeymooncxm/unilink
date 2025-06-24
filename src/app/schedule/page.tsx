@@ -88,7 +88,7 @@ export default function SchedulePage() {
   }
 
   return (
-    <div className="container py-6 space-y-6 animate-in fade-in duration-500">
+    <div className="py-6 space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Your Schedule</h1>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -147,7 +147,7 @@ export default function SchedulePage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Start Time</FormLabel>
-                        <FormControl><Input type="time" {...field} /></FormControl>
+                        <FormControl><Input type="time" className="text-center" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -158,7 +158,7 @@ export default function SchedulePage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>End Time</FormLabel>
-                        <FormControl><Input type="time" {...field} /></FormControl>
+                        <FormControl><Input type="time" className="text-center" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )}

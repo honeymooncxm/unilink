@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { AppHeader } from '@/components/header';
 import { BottomNav } from '@/components/bottom-nav';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
   title: 'UniLink',
@@ -15,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -25,12 +26,19 @@ export default function RootLayout({
         ></link>
       </head>
       <body className="font-body antialiased bg-background">
-        <div className="relative flex min-h-screen flex-col">
-          <AppHeader />
-          <main className="flex-1 pb-20">{children}</main>
-          <BottomNav />
-        </div>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="relative flex min-h-screen flex-col">
+            <AppHeader />
+            <main className="flex-1 container pb-20">{children}</main>
+            <BottomNav />
+          </div>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

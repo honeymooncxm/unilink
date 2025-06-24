@@ -27,10 +27,6 @@ export function MainNav() {
           <SidebarMenuButton
             asChild
             isActive={pathname === item.href}
-            tooltip={{
-              children: item.label,
-              className: "bg-sidebar-accent text-sidebar-accent-foreground",
-            }}
           >
             <Link href={item.href}>
               <item.icon />

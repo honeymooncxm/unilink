@@ -287,7 +287,7 @@ export default function SchedulePage() {
         </Dialog>
       
       <div className="w-full overflow-x-auto">
-        <div className="inline-flex h-auto w-full items-center justify-center space-x-1 rounded-lg bg-muted p-1">
+        <div className="inline-flex h-auto items-center justify-center space-x-1 rounded-lg bg-muted p-1">
           {daysOfWeek.map((day, index) => (
             <Button
               key={day}
@@ -295,9 +295,9 @@ export default function SchedulePage() {
               variant="ghost"
               size="sm"
               className={cn(
-                "w-full px-3 py-2 text-sm font-medium sm:py-1.5",
+                "px-3 py-2 text-sm font-medium sm:py-1.5",
                 selectedDay === day
-                  ? "bg-background text-foreground shadow-sm hover:bg-background/90"
+                  ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
                   : "text-muted-foreground hover:bg-background/50 hover:text-foreground"
               )}
             >

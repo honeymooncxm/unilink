@@ -46,7 +46,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { type Appointment } from '@/lib/types';
 import { getAppointments, addAppointment, updateAppointment, deleteAppointment } from '@/lib/services';
@@ -126,20 +126,16 @@ export default function SchedulePage() {
       .sort((a, b) => a.timeRange.localeCompare(b.timeRange));
   }, [appointments, selectedDay]);
 
-function handleEditClick(appointment: Appointment) {
-  const validDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
-  const isValidDay = validDays.includes(appointment.day as any);
-
-  setEditingAppointment(appointment);
-  const [startTime = "09:00", endTime = "10:30"] = appointment.timeRange.split(" - "); // Значения по умолчанию
-  form.reset({
-    ...appointment,
-    startTime: appointment.startTime || startTime,
-    endTime: appointment.endTime || endTime,
-    day: isValidDay ? appointment.day : "Monday", // Приведение к допустимому значению
-  });
-  setIsDialogOpen(true);
-}
+  function handleEditClick(appointment: Appointment) {
+    setEditingAppointment(appointment);
+    const [startTime = "09:00", endTime = "10:30"] = appointment.timeRange.split(" - ");
+    form.reset({
+      ...appointment,
+      startTime: appointment.startTime || startTime,
+      endTime: appointment.endTime || endTime,
+    } as z.infer<typeof appointmentSchema>);
+    setIsDialogOpen(true);
+  }
 
   function handleDeleteClick(appointment: Appointment) {
     setDeletingAppointmentId(appointment.id);
@@ -155,45 +151,31 @@ function handleEditClick(appointment: Appointment) {
     setIsDeleteDialogOpen(false);
   }
 
-async function onSubmit(values: z.infer<typeof appointmentSchema>) {
-  const appointmentData: Appointment = {
-    id: editingAppointment ? editingAppointment.id : crypto.randomUUID(), // Генерация ID
-    course: values.course,
-    professor: values.professor,
-    room: values.room,
-    day: values.day, // Тип уже гарантирован схемой Zod
-    startTime: values.startTime,
-    endTime: values.endTime,
-    timeRange: `${values.startTime} - ${values.endTime}`,
-    type: values.type,
-  };
+  async function onSubmit(values: z.infer<typeof appointmentSchema>) {
+    const appointmentData: Appointment = {
+      id: editingAppointment ? editingAppointment.id : crypto.randomUUID(),
+      course: values.course,
+      professor: values.professor,
+      room: values.room,
+      day: values.day,
+      startTime: values.startTime,
+      endTime: values.endTime,
+      timeRange: `${values.startTime} - ${values.endTime}`,
+      type: values.type,
+    };
 
-  if (editingAppointment) {
-    await updateAppointment(editingAppointment.id, appointmentData);
-  } else {
-    const { id, ...addData } = appointmentData; // Исключить id для addAppointment
-    await addAppointment(addData);
+    if (editingAppointment) {
+      await updateAppointment(editingAppointment.id, appointmentData);
+    } else {
+      const { id, ...addData } = appointmentData;
+      await addAppointment(addData);
+    }
+
+    await fetchAppointments();
+    setIsDialogOpen(false);
+    setEditingAppointment(null);
+    form.reset(defaultFormValues);
   }
-
-  await fetchAppointments();
-  setIsDialogOpen(false);
-  setEditingAppointment(null);
-  form.reset(defaultFormValues);
-}
-
-  if (editingAppointment) {
-    await updateAppointment(editingAppointment.id, appointmentData);
-  } else {
-    // Удаляем id для addAppointment, если он не требуется
-    const { id, ...addAppointmentData } = appointmentData;
-    await addAppointment(addAppointmentData);
-  }
-
-  await fetchAppointments();
-  setIsDialogOpen(false);
-  setEditingAppointment(null);
-  form.reset(defaultFormValues);
-}
 
   return (
     <div className="py-6 space-y-6 animate-in fade-in duration-500">
@@ -210,27 +192,205 @@ async function onSubmit(values: z.infer<typeof appointmentSchema>) {
             <DialogTitle>{isEditing ? t('dialog.appointment.edit_title') : t('dialog.appointment.add_title')}</DialogTitle>
             <DialogDescription>{isEditing ? t('dialog.appointment.edit_description') : t('dialog.appointment.add_description')}</DialogDescription>
           </DialogHeader>
-          <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">{/* Form Fields */}<FormField control={form.control} name="course" render={({ field }) => (<FormItem><FormLabel>{t('dialog.appointment.course_label')}</FormLabel><FormControl><Input placeholder={t('dialog.appointment.course_placeholder')} {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name="professor" render={({ field }) => (<FormItem><FormLabel>{t('dialog.appointment.professor_label')}</FormLabel><FormControl><Input placeholder={t('dialog.appointment.professor_placeholder')} {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name="room" render={({ field }) => (<FormItem><FormLabel>{t('dialog.appointment.room_label')}</FormLabel><FormControl><Input placeholder={t('dialog.appointment.room_placeholder')} {...field} /></FormControl><FormMessage /></FormItem>)} /><div className="grid grid-cols-2 gap-4"><FormField control={form.control} name="startTime" render={({ field }) => (<FormItem><FormLabel>{t('dialog.appointment.start_time_label')}</FormLabel><FormControl><Input type="time" className="text-center" {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name="endTime" render={({ field }) => (<FormItem><FormLabel>{t('dialog.appointment.end_time_label')}</FormLabel><FormControl><Input type="time" className="text-center" {...field} /></FormControl><FormMessage /></FormItem>)} /></div><div className="grid grid-cols-2 gap-4"><FormField control={form.control} name="day" render={({ field }) => (<FormItem><FormLabel>{t('dialog.appointment.day_label')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder={t('dialog.appointment.day_placeholder')} /></SelectTrigger></FormControl><SelectContent>{daysOfWeek.map(day => <SelectItem key={day} value={day}>{dayNameMap[day]}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} /><FormField control={form.control} name="type" render={({ field }) => (<FormItem><FormLabel>{t('dialog.appointment.type_label')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder={t('dialog.appointment.type_placeholder')} /></SelectTrigger></FormControl><SelectContent><SelectItem value="Lecture">{typeMap['Lecture']}</SelectItem><SelectItem value="Seminar">{typeMap['Seminar']}</SelectItem><SelectItem value="Lab">{typeMap['Lab']}</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} /></div><DialogFooter><Button type="submit">{isEditing ? t('dialog.appointment.save_button') : t('dialog.appointment.add_button')}</Button></DialogFooter></form></Form>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+              <FormField control={form.control} name="course" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('dialog.appointment.course_label')}</FormLabel>
+                  <FormControl>
+                    <Input placeholder={t('dialog.appointment.course_placeholder')} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="professor" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('dialog.appointment.professor_label')}</FormLabel>
+                  <FormControl>
+                    <Input placeholder={t('dialog.appointment.professor_placeholder')} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="room" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('dialog.appointment.room_label')}</FormLabel>
+                  <FormControl>
+                    <Input placeholder={t('dialog.appointment.room_placeholder')} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={form.control} name="startTime" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('dialog.appointment.start_time_label')}</FormLabel>
+                    <FormControl>
+                      <Input type="time" className="text-center" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="endTime" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('dialog.appointment.end_time_label')}</FormLabel>
+                    <FormControl>
+                      <Input type="time" className="text-center" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={form.control} name="day" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('dialog.appointment.day_label')}</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={t('dialog.appointment.day_placeholder')} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {daysOfWeek.map(day => (
+                          <SelectItem key={day} value={day}>{dayNameMap[day]}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="type" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('dialog.appointment.type_label')}</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={t('dialog.appointment.type_placeholder')} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Lecture">{typeMap['Lecture']}</SelectItem>
+                        <SelectItem value="Seminar">{typeMap['Seminar']}</SelectItem>
+                        <SelectItem value="Lab">{typeMap['Lab']}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              </div>
+              <DialogFooter>
+                <Button type="submit">{isEditing ? t('dialog.appointment.save_button') : t('dialog.appointment.add_button')}</Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
-      
+
       <div className="grid grid-cols-7 gap-1 md:gap-2">
-        {daysOfWeek.map((day) => (<button key={day} onClick={() => setSelectedDay(day)} className={cn("rounded-full py-2 text-center text-xs font-semibold transition-colors", selectedDay === day ? "bg-primary text-primary-foreground shadow-md" : "bg-muted text-muted-foreground hover:bg-muted/80")}>{dayAbbrMap[day]}</button>))}
+        {daysOfWeek.map((day) => (
+          <button
+            key={day}
+            onClick={() => setSelectedDay(day)}
+            className={cn(
+              "rounded-full py-2 text-center text-xs font-semibold transition-colors",
+              selectedDay === day ? "bg-primary text-primary-foreground shadow-md" : "bg-muted text-muted-foreground hover:bg-muted/80"
+            )}
+          >
+            {dayAbbrMap[day]}
+          </button>
+        ))}
       </div>
-      
+
       <div>
-        <h2 className="text-xl font-bold flex items-center gap-2 mb-4"><Calendar className="size-5" /> {dayNameMap[selectedDay]}</h2>
+        <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
+          <Calendar className="size-5" /> {dayNameMap[selectedDay]}
+        </h2>
         <div className="space-y-3">
-          {loading ? Array.from({length: 3}).map((_, i) => <Skeleton key={i} className="h-28 w-full rounded-lg" />) :
-           filteredAppointments.length > 0 ? (filteredAppointments.map(appointment => (<Card key={appointment.id} className="transition-colors duration-300"><CardContent className="p-3 flex gap-3"><div className="flex flex-col items-center justify-center text-center w-16 shrink-0"><p className="font-semibold text-sm">{appointment.timeRange.split(' - ')[0]}</p><div className="h-px w-4 bg-border my-1"></div><p className="font-semibold text-sm">{appointment.timeRange.split(' - ')[1]}</p></div><div className="border-l border-border/80 h-auto self-stretch"></div><div className="flex-grow flex justify-between items-start gap-2"><div className="space-y-1.5 flex-grow overflow-hidden"><h3 className="font-bold text-base leading-tight truncate">{appointment.course}</h3><div className="text-muted-foreground text-xs flex flex-wrap items-center gap-x-3 gap-y-1"><span className="flex items-center gap-1.5"><MapPin size={12} />{appointment.room}</span><span className="flex items-center gap-1.5"><Clock size={12} />{appointment.timeRange}</span></div><div className="text-sm pt-1"><span>{appointment.professor}</span></div></div><div className='flex items-center shrink-0'><Badge className={cn("text-xs font-semibold", { "bg-primary/90 text-primary-foreground": appointment.type === 'Lecture', "bg-amber-400 text-amber-950 hover:bg-amber-400/80": appointment.type === 'Lab', "bg-sky-400 text-sky-950 hover:bg-sky-400/80": appointment.type === 'Seminar' })}>{typeMap[appointment.type]}</Badge><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 -mr-2"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onClick={() => handleEditClick(appointment)}><Pencil className="mr-2 h-4 w-4" /><span>{t('schedule.edit')}</span></DropdownMenuItem><DropdownMenuItem onClick={() => handleDeleteClick(appointment)} className="text-destructive focus:text-destructive"><Trash2 className="mr-2 h-4 w-4" /><span>{t('schedule.delete')}</span></DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></div></CardContent></Card>))) : 
-          (<div className="text-center py-20 rounded-lg border border-dashed"><p className="text-muted-foreground">{t('schedule.empty_text')} {dayNameMap[selectedDay]?.toLowerCase()}.</p></div>)}
+          {loading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-28 w-full rounded-lg" />
+            ))
+          ) : filteredAppointments.length > 0 ? (
+            filteredAppointments.map(appointment => (
+              <Card key={appointment.id} className="transition-colors duration-300">
+                <CardContent className="p-3 flex gap-3">
+                  <div className="flex flex-col items-center justify-center text-center w-16 shrink-0">
+                    <p className="font-semibold text-sm">{appointment.timeRange.split(' - ')[0]}</p>
+                    <div className="h-px w-4 bg-border my-1"></div>
+                    <p className="font-semibold text-sm">{appointment.timeRange.split(' - ')[1]}</p>
+                  </div>
+                  <div className="border-l border-border/80 h-auto self-stretch"></div>
+                  <div className="flex-grow flex justify-between items-start gap-2">
+                    <div className="space-y-1.5 flex-grow overflow-hidden">
+                      <h3 className="font-bold text-base leading-tight truncate">{appointment.course}</h3>
+                      <div className="text-muted-foreground text-xs flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span className="flex items-center gap-1.5">
+                          <MapPin size={12} />{appointment.room}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <Clock size={12} />{appointment.timeRange}
+                        </span>
+                      </div>
+                      <div className="text-sm pt-1">
+                        <span>{appointment.professor}</span>
+                      </div>
+                    </div>
+                    <div className='flex items-center shrink-0'>
+                      <Badge
+                        className={cn(
+                          "text-xs font-semibold",
+                          {
+                            "bg-primary/90 text-primary-foreground": appointment.type === 'Lecture',
+                            "bg-amber-400 text-amber-950 hover:bg-amber-400/80": appointment.type === 'Lab',
+                            "bg-sky-400 text-sky-950 hover:bg-sky-400/80": appointment.type === 'Seminar',
+                          }
+                        )}
+                      >
+                        {typeMap[appointment.type]}
+                      </Badge>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 -mr-2">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleEditClick(appointment)}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            <span>{t('schedule.edit')}</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDeleteClick(appointment)} className="text-destructive focus:text-destructive">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            <span>{t('schedule.delete')}</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <div className="text-center py-20 rounded-lg border border-dashed">
+              <p className="text-muted-foreground">{t('schedule.empty_text')} {dayNameMap[selectedDay]?.toLowerCase()}.</p>
+            </div>
+          )}
         </div>
       </div>
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
-          <AlertDialogHeader><AlertDialogTitle>{t('dialog.delete.title')}</AlertDialogTitle><AlertDialogDescription>{t('dialog.delete.description')}</AlertDialogDescription></AlertDialogHeader>
-          <AlertDialogFooter><AlertDialogCancel>{t('dialog.delete.cancel')}</AlertDialogCancel><AlertDialogAction onClick={confirmDelete} className={buttonVariants({ variant: "destructive" })}>{t('dialog.delete.confirm')}</AlertDialogAction></AlertDialogFooter>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('dialog.delete.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('dialog.delete.description')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('dialog.delete.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className={buttonVariants({ variant: "destructive" })}>
+              {t('dialog.delete.confirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>

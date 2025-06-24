@@ -17,7 +17,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-primary text-primary-foreground/70 md:bg-background md:text-foreground md:border-t">
-      <div className="container mx-auto grid h-16 max-w-lg grid-cols-4 items-center">
+      <div className="container grid h-16 max-w-lg grid-cols-4 items-center">
         {navItems.map((item) => (
           <Link
             key={item.href}

@@ -33,21 +33,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   const t = useCallback((key: string): string => {
-    const keys = key.split('.');
-    let result: any = translations[language];
-    for (const k of keys) {
-      result = result?.[k];
-      if (result === undefined) {
-        // Fallback to English if translation is missing
-        let fallbackResult: any = translations.en;
-        for (const fk of keys) {
-            fallbackResult = fallbackResult?.[fk];
-            if(fallbackResult === undefined) return key;
-        }
-        return fallbackResult || key;
-      }
+    const result = translations[language]?.[key];
+    if (result !== undefined) {
+      return result;
     }
-    return result;
+
+    const fallbackResult = translations.en?.[key];
+    if (fallbackResult !== undefined) {
+      return fallbackResult;
+    }
+
+    return key;
   }, [language]);
 
   const value = {

@@ -30,7 +30,9 @@ export function HomePageAppointmentCard({ appointment }: HomePageAppointmentCard
             <div className="flex items-center gap-2">
               <MapPin className="size-3" />
               <span>{appointment.room}</span>
-              <Clock className="size-3 ml-2" />
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="size-3" />
               <span>{appointment.timeRange}</span>
             </div>
             <div className="flex items-center gap-2">

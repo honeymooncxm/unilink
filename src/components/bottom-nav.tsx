@@ -16,7 +16,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-primary text-primary-foreground/70 md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-primary text-primary-foreground/70">
       <div className="container grid h-16 max-w-lg grid-cols-4 items-center">
         {navItems.map((item) => (
           <Link

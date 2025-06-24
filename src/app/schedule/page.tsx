@@ -54,7 +54,7 @@ import { Calendar, Clock, MapPin, Plus, MoreHorizontal, Pencil, Trash2 } from 'l
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/language-context';
 
-const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 const getAppointmentSchema = (t: (key: string) => string) => z.object({
   course: z.string().min(2, { message: t('zod.course.min') }),
@@ -115,7 +115,10 @@ export default function SchedulePage() {
   useEffect(() => {
     const jsDayIndex = new Date().getDay();
     const appDayIndex = jsDayIndex === 0 ? 6 : jsDayIndex - 1;
-    setSelectedDay(daysOfWeek[appDayIndex]);
+    // Ensure we don't select Sunday if it's not in the list
+    if (appDayIndex < daysOfWeek.length) {
+      setSelectedDay(daysOfWeek[appDayIndex]);
+    }
   }, []);
 
   const isEditing = !!editingAppointment;
@@ -318,25 +321,21 @@ export default function SchedulePage() {
           </DialogContent>
         </Dialog>
       
-      <div className="w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="inline-flex h-auto items-center justify-center space-x-2 p-1">
-          {daysOfWeek.map((day) => (
-            <button
-              key={day}
-              onClick={() => setSelectedDay(day)}
-              className={cn(
-                "px-4 py-1.5 text-sm font-medium rounded-full transition-colors shrink-0",
-                "sm:px-3 sm:py-2",
-                selectedDay === day
-                  ? "bg-primary text-primary-foreground shadow"
-                  : "bg-muted text-foreground hover:bg-muted/80"
-              )}
-            >
-              <span className="hidden sm:inline">{dayNameMap[day]}</span>
-              <span className="sm:hidden">{dayAbbrMap[day]}</span>
-            </button>
-          ))}
-        </div>
+      <div className="grid grid-cols-6 gap-1 md:gap-2">
+        {daysOfWeek.map((day) => (
+          <button
+            key={day}
+            onClick={() => setSelectedDay(day)}
+            className={cn(
+              "rounded-full py-2 text-center text-xs font-semibold transition-colors",
+              selectedDay === day
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            )}
+          >
+            {dayAbbrMap[day]}
+          </button>
+        ))}
       </div>
       
       <div>

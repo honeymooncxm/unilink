@@ -148,22 +148,27 @@ export default function SchedulePage() {
   }
 
   async function onSubmit(values: z.infer<typeof appointmentSchema>) {
-    const appointmentData = {
-      ...values,
-      timeRange: `${values.startTime} - ${values.endTime}`,
-    };
-    
-    if (editingAppointment) {
-      await updateAppointment(editingAppointment.id, appointmentData);
-    } else {
-      await addAppointment(appointmentData);
-    }
-    
-    await fetchAppointments();
-    setIsDialogOpen(false);
-    setEditingAppointment(null);
-    form.reset(defaultFormValues);
+  const appointmentData = {
+    course: values.course,
+    professor: values.professor,
+    room: values.room,
+    day: values.day,
+    startTime: values.startTime,
+    endTime: values.endTime,
+    type: values.type,
+  };
+  
+  if (editingAppointment) {
+    await updateAppointment(editingAppointment.id, appointmentData);
+  } else {
+    await addAppointment(appointmentData);
   }
+  
+  await fetchAppointments();
+  setIsDialogOpen(false);
+  setEditingAppointment(null);
+  form.reset(defaultFormValues);
+}
 
   return (
     <div className="py-6 space-y-6 animate-in fade-in duration-500">

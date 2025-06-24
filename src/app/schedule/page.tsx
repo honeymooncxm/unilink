@@ -54,15 +54,19 @@ import { Calendar, Clock, MapPin, Plus, User, MoreHorizontal, Pencil, Trash2 } f
 import { cn } from '@/lib/utils';
 
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-const abbreviatedDaysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const dayNameMap: { [key: string]: string } = { Monday: "Понедельник", Tuesday: "Вторник", Wednesday: "Среда", Thursday: "Четверг", Friday: "Пятница", Saturday: "Суббота", Sunday: "Воскресенье" };
+const dayAbbrMap: { [key: string]: string } = { Monday: "Пн", Tuesday: "Вт", Wednesday: "Ср", Thursday: "Чт", Friday: "Пт", Saturday: "Сб", Sunday: "Вс" };
+const typeMap: { [key: string]: string } = { Lecture: "Лекция", Seminar: "Семинар", Lab: "Лаб. работа" };
+const typeReverseMap: { [key: string]: string } = { "Лекция": "Lecture", "Семинар": "Seminar", "Лаб. работа": "Lab" };
+
 
 const appointmentSchema = z.object({
-  course: z.string().min(2, "Course name is too short"),
-  professor: z.string().min(2, "Professor name is too short"),
-  room: z.string().min(1, "Room is required"),
+  course: z.string().min(2, "Название курса слишком короткое"),
+  professor: z.string().min(2, "Имя преподавателя слишком короткое"),
+  room: z.string().min(1, "Требуется указать аудиторию"),
   day: z.enum(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]),
-  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)"),
-  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)"),
+  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Неверный формат времени (ЧЧ:ММ)"),
+  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Неверный формат времени (ЧЧ:ММ)"),
   type: z.enum(["Lecture", "Seminar", "Lab"]),
 });
 
@@ -85,9 +89,7 @@ export default function SchedulePage() {
   const [deletingAppointment, setDeletingAppointment] = useState<Appointment | null>(null);
 
   useEffect(() => {
-    // Set the selected day to the current day on component mount
-    const jsDayIndex = new Date().getDay(); // 0 for Sunday, 1 for Monday, etc.
-    // The app's daysOfWeek array starts with Monday.
+    const jsDayIndex = new Date().getDay();
     const appDayIndex = jsDayIndex === 0 ? 6 : jsDayIndex - 1;
     setSelectedDay(daysOfWeek[appDayIndex]);
   }, []);
@@ -158,10 +160,14 @@ export default function SchedulePage() {
   return (
     <div className="py-6 space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Your Schedule</h1>
-        <Button onClick={() => setIsDialogOpen(true)}>
+        <h1 className="text-2xl font-bold">Ваше расписание</h1>
+        <Button onClick={() => {
+          setEditingAppointment(null);
+          form.reset(defaultFormValues);
+          setIsDialogOpen(true)
+        }}>
             <Plus className="mr-2 h-4 w-4" />
-            Add
+            Добавить
         </Button>
       </div>
 
@@ -174,9 +180,9 @@ export default function SchedulePage() {
       }}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>{isEditing ? 'Edit Appointment' : 'Add Appointment'}</DialogTitle>
+              <DialogTitle>{isEditing ? 'Редактировать запись' : 'Добавить запись'}</DialogTitle>
               <DialogDescription>
-                {isEditing ? 'Update the details of your appointment.' : 'Fill in the details to add a new appointment.'}
+                {isEditing ? 'Обновите детали вашего занятия.' : 'Заполните детали, чтобы добавить новое занятие.'}
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -186,7 +192,7 @@ export default function SchedulePage() {
                   name="course"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Course</FormLabel>
+                      <FormLabel>Курс</FormLabel>
                       <FormControl><Input placeholder="e.g. Introduction to AI" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
@@ -197,7 +203,7 @@ export default function SchedulePage() {
                   name="professor"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Professor</FormLabel>
+                      <FormLabel>Преподаватель</FormLabel>
                       <FormControl><Input placeholder="e.g. Dr. Alan Turing" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
@@ -208,7 +214,7 @@ export default function SchedulePage() {
                   name="room"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Room / Lab</FormLabel>
+                      <FormLabel>Аудитория / Кабинет</FormLabel>
                       <FormControl><Input placeholder="e.g. Room 305" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
@@ -220,7 +226,7 @@ export default function SchedulePage() {
                     name="startTime"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Start Time</FormLabel>
+                        <FormLabel>Время начала</FormLabel>
                         <FormControl><Input type="time" className="text-center" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -231,7 +237,7 @@ export default function SchedulePage() {
                     name="endTime"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>End Time</FormLabel>
+                        <FormLabel>Время окончания</FormLabel>
                         <FormControl><Input type="time" className="text-center" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -244,13 +250,13 @@ export default function SchedulePage() {
                     name="day"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Day</FormLabel>
+                        <FormLabel>День</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger><SelectValue placeholder="Select a day" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder="Выберите день" /></SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {daysOfWeek.map(day => <SelectItem key={day} value={day}>{day}</SelectItem>)}
+                            {daysOfWeek.map(day => <SelectItem key={day} value={day}>{dayNameMap[day]}</SelectItem>)}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -262,15 +268,15 @@ export default function SchedulePage() {
                     name="type"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Type</FormLabel>
+                        <FormLabel>Тип</FormLabel>
                          <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger><SelectValue placeholder="Select a type" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder="Выберите тип" /></SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Lecture">Lecture</SelectItem>
-                            <SelectItem value="Seminar">Seminar</SelectItem>
-                            <SelectItem value="Lab">Lab</SelectItem>
+                            <SelectItem value="Lecture">{typeMap['Lecture']}</SelectItem>
+                            <SelectItem value="Seminar">{typeMap['Seminar']}</SelectItem>
+                            <SelectItem value="Lab">{typeMap['Lab']}</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -279,7 +285,7 @@ export default function SchedulePage() {
                   />
                 </div>
                 <DialogFooter>
-                  <Button type="submit">{isEditing ? 'Save Changes' : 'Add Appointment'}</Button>
+                  <Button type="submit">{isEditing ? 'Сохранить изменения' : 'Добавить запись'}</Button>
                 </DialogFooter>
               </form>
             </Form>
@@ -287,79 +293,77 @@ export default function SchedulePage() {
         </Dialog>
       
       <div className="w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="inline-flex h-auto items-center justify-center space-x-1 rounded-lg bg-muted p-1">
-          {daysOfWeek.map((day, index) => (
-            <Button
+        <div className="inline-flex h-auto items-center justify-center space-x-2 p-1">
+          {daysOfWeek.map((day) => (
+            <button
               key={day}
               onClick={() => setSelectedDay(day)}
-              variant="ghost"
-              size="sm"
               className={cn(
-                "px-3 py-2 text-sm font-medium sm:py-1.5",
+                "px-4 py-1.5 text-sm font-medium rounded-full transition-colors shrink-0",
+                "sm:px-3 sm:py-2",
                 selectedDay === day
-                  ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
-                  : "text-muted-foreground hover:bg-background/50 hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow"
+                  : "bg-muted text-foreground hover:bg-muted/80"
               )}
             >
-              <span className="hidden sm:inline">{day}</span>
-              <span className="sm:hidden">{abbreviatedDaysOfWeek[index]}</span>
-            </Button>
+              <span className="hidden sm:inline">{dayNameMap[day]}</span>
+              <span className="sm:hidden">{dayAbbrMap[day]}</span>
+            </button>
           ))}
         </div>
       </div>
       
       <div>
         <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
-          <Calendar className="size-5" /> {selectedDay}
+          <Calendar className="size-5" /> {dayNameMap[selectedDay]}
         </h2>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {filteredAppointments.length > 0 ? (
             filteredAppointments.map(appointment => {
               const [startTime, endTime] = appointment.timeRange.split(' - ');
               return (
                 <Card key={appointment.id} className="transition-colors duration-300">
                   <CardContent className="p-3 flex gap-3">
-                    <div className="flex flex-col items-center justify-center text-center w-20 shrink-0">
+                    <div className="flex flex-col items-center justify-center text-center w-16 shrink-0">
                       <p className="font-semibold text-sm">{startTime}</p>
-                      <p className="text-muted-foreground my-1">-</p>
+                      <div className="h-px w-4 bg-border my-1"></div>
                       <p className="font-semibold text-sm">{endTime}</p>
                     </div>
-                    <div className="border-l border-border/80 h-auto"></div>
-                    <div className="flex-grow flex justify-between items-start">
-                        <div className="space-y-1">
-                            <h3 className="font-bold text-base leading-tight">{appointment.course}</h3>
-                            <div className="text-muted-foreground text-xs flex items-center gap-4">
-                                <span className="flex items-center gap-1.5"><MapPin size={14} />{appointment.room}</span>
-                                <span className="flex items-center gap-1.5"><Clock size={14} />{appointment.timeRange}</span>
+                    <div className="border-l border-border/80 h-auto self-stretch"></div>
+                    <div className="flex-grow flex justify-between items-start gap-2">
+                        <div className="space-y-1.5 flex-grow overflow-hidden">
+                            <h3 className="font-bold text-base leading-tight truncate">{appointment.course}</h3>
+                            <div className="text-muted-foreground text-xs flex flex-wrap items-center gap-x-3 gap-y-1">
+                                <span className="flex items-center gap-1.5"><MapPin size={12} />{appointment.room}</span>
+                                <span className="flex items-center gap-1.5"><Clock size={12} />{appointment.timeRange}</span>
                             </div>
-                            <div className="text-sm flex items-center gap-1.5 pt-1">
-                                <User size={14} className="text-muted-foreground"/>
+                            <div className="text-sm pt-1">
                                 <span>{appointment.professor}</span>
                             </div>
                         </div>
-                        <div className='flex items-center'>
+                        <div className='flex items-center shrink-0'>
                           <Badge className={cn(
-                            "text-xs font-bold",
+                            "text-xs font-semibold",
                             { "bg-primary/90 text-primary-foreground": appointment.type === 'Lecture' },
                             { "bg-amber-400 text-amber-950 hover:bg-amber-400/80": appointment.type === 'Lab' },
                             { "bg-sky-400 text-sky-950 hover:bg-sky-400/80": appointment.type === 'Seminar' }
                           )}>
-                            {appointment.type}
+                            {typeMap[appointment.type]}
                           </Badge>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 -mr-2">
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => handleEditClick(appointment)}>
                                 <Pencil className="mr-2 h-4 w-4" />
-                                <span>Edit</span>
+                                <span>Редактировать</span>
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleDeleteClick(appointment)} className="text-destructive focus:text-destructive">
                                 <Trash2 className="mr-2 h-4 w-4" />
-                                <span>Delete</span>
+                                <span>Удалить</span>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -371,7 +375,7 @@ export default function SchedulePage() {
             })
           ) : (
              <div className="text-center py-20 rounded-lg border border-dashed">
-                <p className="text-muted-foreground">No appointments for {selectedDay}.</p>
+                <p className="text-muted-foreground">Нет занятий на {dayNameMap[selectedDay].toLowerCase()}.</p>
               </div>
           )}
         </div>
@@ -379,17 +383,17 @@ export default function SchedulePage() {
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
             <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>Вы уверены?</AlertDialogTitle>
             <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete this appointment from your schedule.
+                Это действие нельзя будет отменить. Запись будет удалена из вашего расписания навсегда.
             </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Отмена</AlertDialogCancel>
             <AlertDialogAction 
                 onClick={confirmDelete} 
                 className={buttonVariants({ variant: "destructive" })}>
-                Delete
+                Удалить
             </AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>

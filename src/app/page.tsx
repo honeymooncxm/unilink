@@ -1,63 +1,58 @@
-import { user } from '@/lib/data';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { user, appointments } from '@/lib/data';
+import { Card } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { Calendar, Newspaper } from 'lucide-react';
+import { HomePageAppointmentCard } from '@/components/home-page-appointment-card';
+import Image from 'next/image';
 
 export default function Home() {
+  const todayAppointments = appointments.slice(0, 3);
+
   return (
-    <div className="flex flex-col gap-8 animate-in fade-in duration-500">
-      <div className="flex items-center gap-4">
-        <Avatar className="h-20 w-20">
-          <AvatarImage src={`https://i.pravatar.cc/150?u=${user.email}`} alt={user.name} />
-          <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-        </Avatar>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome, {user.name}!</h1>
-          <p className="text-muted-foreground">
-            Have a productive day. Here's what's on your schedule.
-          </p>
-        </div>
-      </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>About Me</CardTitle>
-          <CardDescription>A brief introduction.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-foreground/80">{user.description}</p>
-        </CardContent>
-      </Card>
-      
+    <div className="container flex flex-col gap-8 animate-in fade-in duration-500 py-6">
       <div>
-        <h2 className="text-2xl font-semibold mb-4">Quick Overview</h2>
-        <div className="grid gap-4 md:grid-cols-3">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Faculty</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-2xl font-bold">{user.faculty}</p>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Course</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-2xl font-bold">{user.course}</p>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Group</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-2xl font-bold">{user.group}</p>
-                </CardContent>
-            </Card>
-        </div>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          Hello, <span className="font-bold">{user.name.split(' ')[0]}</span>
+        </h1>
+        <p className="text-muted-foreground">
+          {user.description}
+        </p>
       </div>
 
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <Calendar className="size-5 text-primary" />
+            Today's Schedule
+          </h2>
+          <Button variant="link" asChild className="text-primary">
+            <Link href="/schedule">View All</Link>
+          </Button>
+        </div>
+        <div className="space-y-4">
+          {todayAppointments.map(app => (
+            <HomePageAppointmentCard key={app.id} appointment={app} />
+          ))}
+        </div>
+      </section>
+      
+      <section>
+        <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
+          <Newspaper className="size-5 text-primary" />
+          Latest News
+        </h2>
+        <Card className="overflow-hidden rounded-lg">
+          <Image 
+            src="https://placehold.co/600x250.png"
+            alt="University campus"
+            width={600}
+            height={250}
+            className="w-full h-auto object-cover"
+            data-ai-hint="university campus building"
+          />
+        </Card>
+      </section>
     </div>
   );
 }

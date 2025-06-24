@@ -21,7 +21,7 @@ export default function SchedulePage() {
   }, [searchTerm]);
 
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in duration-500">
+    <div className="container py-6 flex flex-col gap-6 animate-in fade-in duration-500">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">My Schedule</h1>
         <p className="text-muted-foreground">

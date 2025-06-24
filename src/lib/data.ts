@@ -18,6 +18,13 @@ export type User = {
   group: string;
 };
 
+export type Club = {
+  id: number;
+  name: string;
+  description: string;
+  avatarUrl: string;
+};
+
 export type Client = {
   id: number;
   name: string;
@@ -28,7 +35,7 @@ export type Client = {
 
 export const user: User = {
   name: 'Sunnatilla Kholdarboeva',
-  description: 'Computer Science student passionate about AI and machine learning. Dedicated to exploring the frontiers of technology and applying knowledge to solve real-world problems.',
+  description: 'Welcome to UniLink, your student platform',
   email: 'sunnatilla@example.com',
   university: 'Westminster University in Tashkent',
   faculty: 'Computer Science',
@@ -49,7 +56,7 @@ export const appointments: Appointment[] = [
   {
     id: 2,
     timeRange: '11:00 - 12:30',
-    course: 'Mathematics Analysis',
+    course: 'Calculus I',
     professor: 'Prof. Rustam Ibragimov',
     room: 'Room 401',
     type: 'Lecture',
@@ -58,7 +65,7 @@ export const appointments: Appointment[] = [
   {
     id: 3,
     timeRange: '14:00 - 15:30',
-    course: 'English Language',
+    course: 'English for Academic Purposes',
     professor: 'Sarah Johnson',
     room: 'Room 102',
     type: 'Seminar',
@@ -84,26 +91,25 @@ export const appointments: Appointment[] = [
   },
 ];
 
-export const clients: Client[] = [
+export const clubs: Club[] = [
   {
     id: 1,
-    name: 'Alisher Usmanov',
-    email: 'alisher@example.com',
-    university: 'Tashkent State University of Economics',
-    avatarUrl: 'https://i.pravatar.cc/150?u=alisher@example.com',
+    name: 'Debate Club',
+    description: 'Sharpen your arguments and public speaking skills.',
+    avatarUrl: 'https://placehold.co/150x150.png',
   },
   {
     id: 2,
-    name: 'Dildora Alimova',
-    email: 'dildora@example.com',
-    university: 'National University of Uzbekistan',
-    avatarUrl: 'https://i.pravatar.cc/150?u=dildora@example.com',
+    name: 'AI & Robotics Society',
+    description: 'Explore the cutting edge of technology and build cool projects.',
+    avatarUrl: 'https://placehold.co/150x150.png',
   },
   {
     id: 3,
-    name: 'Bekzod Abdullaev',
-    email: 'bekzod@example.com',
-    university: 'Tashkent University of Information Technologies',
-    avatarUrl: 'https://i.pravatar.cc/150?u=bekzod@example.com',
+    name: 'Photography Club',
+    description: 'Capture moments and learn new techniques.',
+    avatarUrl: 'https://placehold.co/150x150.png',
   },
 ];
+
+export const clients: Client[] = [];

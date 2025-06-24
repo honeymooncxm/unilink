@@ -1,11 +1,11 @@
 export type Appointment = {
   id: number;
+  day: string;
   timeRange: string;
   course: string;
   professor: string;
   room: string;
-  type: 'Lecture' | 'Seminar';
-  status: 'Лекция' | 'Семинар';
+  type: 'Lecture' | 'Seminar' | 'Lab';
 };
 
 export type User = {
@@ -46,48 +46,66 @@ export const user: User = {
 export const appointments: Appointment[] = [
   {
     id: 1,
+    day: 'Monday',
     timeRange: '09:00 - 10:30',
-    course: 'Economics 101',
-    professor: 'Dr. Nodira Azimova',
-    room: 'Room 305',
+    course: 'Introduction to Programming',
+    professor: 'Dr. Alisher Usmanov',
+    room: 'Room 101',
     type: 'Lecture',
-    status: 'Лекция',
   },
   {
     id: 2,
+    day: 'Monday',
     timeRange: '11:00 - 12:30',
-    course: 'Calculus I',
-    professor: 'Prof. Rustam Ibragimov',
-    room: 'Room 401',
+    course: 'Data Structures',
+    professor: 'Prof. Kamila Rakhimova',
+    room: 'Room 203',
     type: 'Lecture',
-    status: 'Лекция',
   },
   {
     id: 3,
+    day: 'Monday',
     timeRange: '14:00 - 15:30',
-    course: 'English for Academic Purposes',
-    professor: 'Sarah Johnson',
-    room: 'Room 102',
-    type: 'Seminar',
-    status: 'Семинар',
+    course: 'Introduction to Programming',
+    professor: 'Timur Karimov',
+    room: 'Lab 3',
+    type: 'Lab',
   },
   {
     id: 4,
+    day: 'Tuesday',
     timeRange: '16:00 - 17:30',
     course: 'Introduction to AI',
     professor: 'Dr. Alan Turing',
     room: 'Lab 7',
     type: 'Seminar',
-    status: 'Семинар',
   },
   {
     id: 5,
+    day: 'Wednesday',
     timeRange: '09:00 - 10:30',
     course: 'Data Structures',
     professor: 'Prof. Ada Lovelace',
     room: 'Room 210',
     type: 'Lecture',
-    status: 'Лекция',
+  },
+   {
+    id: 6,
+    day: 'Wednesday',
+    timeRange: '11:00 - 12:30',
+    course: 'Calculus I',
+    professor: 'Prof. Rustam Ibragimov',
+    room: 'Room 401',
+    type: 'Lecture',
+  },
+  {
+    id: 7,
+    day: 'Friday',
+    timeRange: '14:00 - 15:30',
+    course: 'English for Academic Purposes',
+    professor: 'Sarah Johnson',
+    room: 'Room 102',
+    type: 'Seminar',
   },
 ];
 

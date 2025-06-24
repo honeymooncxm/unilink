@@ -1,5 +1,5 @@
 import { user, appointments } from '@/lib/data';
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Calendar, Newspaper } from 'lucide-react';
@@ -7,7 +7,9 @@ import { HomePageAppointmentCard } from '@/components/home-page-appointment-card
 import Image from 'next/image';
 
 export default function Home() {
-  const todayAppointments = appointments.slice(0, 3);
+  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const currentDayName = daysOfWeek[new Date().getDay()];
+  const todayAppointments = appointments.filter(app => app.day === currentDayName);
 
   return (
     <div className="container flex flex-col gap-8 animate-in fade-in duration-500 py-6">
@@ -31,9 +33,19 @@ export default function Home() {
           </Button>
         </div>
         <div className="space-y-4">
-          {todayAppointments.map(app => (
-            <HomePageAppointmentCard key={app.id} appointment={app} />
-          ))}
+          {todayAppointments.length > 0 ? (
+            todayAppointments.map(app => (
+              <HomePageAppointmentCard key={app.id} appointment={app} />
+            ))
+          ) : (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center p-10 text-center">
+                <Calendar className="size-12 text-muted-foreground mb-4" />
+                <h3 className="text-xl font-bold">All Clear!</h3>
+                <p className="text-muted-foreground">You have no appointments scheduled for today.</p>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </section>
       

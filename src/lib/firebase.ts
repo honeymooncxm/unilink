@@ -1,18 +1,19 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeApp, getApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
-// IMPORTANT: Replace this with your actual Firebase project configuration
-// You can find this in your Firebase project settings
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIza...",
-  authDomain: "your-project-id.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project-id.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcdef123456",
+  apiKey: "AIzaSyBjddZcjZInsDnCNcNbRb5_RQGZXxy8Mb8",
+  authDomain: "unilink-1741c.firebaseapp.com",
+  projectId: "unilink-1741c",
+  storageBucket: "unilink-1741c.firebasestorage.app",
+  messagingSenderId: "485141498802",
+  appId: "1:485141498802:web:40878c8b1a92550686f2ab",
+  measurementId: "G-8PVV8HMQHZ"
 };
 
-// Initialize Firebase
+// Initialize Firebase for SSR and client-side
+// This prevents re-initialization during hot-reloads in development
 let app;
 if (!getApps().length) {
   app = initializeApp(firebaseConfig);

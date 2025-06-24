@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { user as initialUser, type User } from '@/lib/data';
+import { type User } from '@/lib/types';
+import { getUserProfile, updateUserProfile } from '@/lib/services';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from '@/context/language-context';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const getProfileSchema = (t: (key: string) => string) => z.object({
   name: z.string().min(2, { message: t('zod.profile.name.min') }),
@@ -39,9 +41,31 @@ const ProfileDetail = ({ label, value }: { label: string; value: string | number
     </div>
 );
 
+const ProfilePageSkeleton = () => (
+  <Card>
+    <CardHeader className="flex flex-row items-center gap-4">
+      <Skeleton className="h-24 w-24 rounded-full" />
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-5 w-64" />
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div className="grid gap-6 md:grid-cols-2">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-7 w-40" />
+          </div>
+        ))}
+      </div>
+    </CardContent>
+  </Card>
+);
+
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
-  const [user, setUser] = useState<User>(initialUser);
+  const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -49,10 +73,19 @@ export default function ProfilePage() {
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
-    defaultValues: user,
   });
 
-  function onSubmit(values: z.infer<typeof profileSchema>) {
+  useEffect(() => {
+    async function loadUser() {
+      const userData = await getUserProfile();
+      setUser(userData);
+      form.reset(userData);
+    }
+    loadUser();
+  }, [form]);
+
+  async function onSubmit(values: z.infer<typeof profileSchema>) {
+    await updateUserProfile(values);
     setUser(values);
     setIsEditing(false);
     toast({
@@ -68,7 +101,7 @@ export default function ProfilePage() {
             <h1 className="text-3xl font-bold tracking-tight">{t('profile.page_title')}</h1>
             <p className="text-muted-foreground">{t('profile.page_description')}</p>
         </div>
-        {!isEditing && (
+        {!isEditing && user && (
             <Button onClick={() => {
                 form.reset(user);
                 setIsEditing(true);
@@ -76,9 +109,11 @@ export default function ProfilePage() {
         )}
       </div>
 
-      <Card>
-        {!isEditing ? (
-            <div className="animate-in fade-in duration-300">
+      {!user ? (
+        <ProfilePageSkeleton />
+      ) : !isEditing ? (
+        <Card className="animate-in fade-in duration-300">
+            <div>
                 <CardHeader className="flex flex-row items-center gap-4">
                     <Avatar className="h-24 w-24">
                         <AvatarImage src={`https://i.pravatar.cc/150?u=${user.email}`} alt={user.name} />
@@ -99,8 +134,9 @@ export default function ProfilePage() {
                     </div>
                 </CardContent>
             </div>
+        </Card>
         ) : (
-          <div className="animate-in fade-in duration-300">
+          <Card className="animate-in fade-in duration-300">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                   <CardHeader>
@@ -194,9 +230,8 @@ export default function ProfilePage() {
                   </CardFooter>
               </form>
             </Form>
-          </div>
+          </Card>
         )}
-      </Card>
     </div>
   );
 }

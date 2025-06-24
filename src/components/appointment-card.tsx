@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { Appointment } from "@/lib/data";
+import type { Appointment } from "@/lib/types";
 import { Clock, BookOpen, User, MapPin } from "lucide-react";
 
 type AppointmentCardProps = {

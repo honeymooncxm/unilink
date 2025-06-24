@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { Club } from "@/lib/data";
+import type { Club } from "@/lib/types";
 
 type ClubCardProps = {
   club: Club;

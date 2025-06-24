@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -25,8 +25,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ClientCard } from "@/components/client-card";
-import { clients as initialClients, type Client } from "@/lib/data";
+import { type Client } from "@/lib/types";
+import { getClients, addClient } from "@/lib/services";
 import { useLanguage } from "@/context/language-context";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const getClientSchema = (t: (key: string) => string) => z.object({
   name: z.string().min(2, { message: t('zod.client.name.min') }),
@@ -34,10 +36,34 @@ const getClientSchema = (t: (key: string) => string) => z.object({
   university: z.string().min(3, { message: t('zod.client.university.min') }),
 });
 
+const ClientCardSkeleton = () => (
+  <div className="p-4 border rounded-lg space-y-3">
+    <div className="flex items-center gap-4">
+      <Skeleton className="h-12 w-12 rounded-full" />
+      <Skeleton className="h-6 w-32" />
+    </div>
+    <div className="space-y-2">
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-5/6" />
+    </div>
+  </div>
+);
+
 export default function ClientsPage() {
   const { t } = useLanguage();
-  const [clients, setClients] = useState<Client[]>(initialClients);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    async function loadClients() {
+      setLoading(true);
+      const clientData = await getClients();
+      setClients(clientData);
+      setLoading(false);
+    }
+    loadClients();
+  }, []);
 
   const clientSchema = useMemo(() => getClientSchema(t), [t]);
 
@@ -50,13 +76,13 @@ export default function ClientsPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof clientSchema>) {
-    const newClient: Client = {
-      id: clients.length + 1,
+  async function onSubmit(values: z.infer<typeof clientSchema>) {
+    const newClientData = {
       ...values,
       avatarUrl: `https://i.pravatar.cc/150?u=${values.email}`,
     };
-    setClients((prevClients) => [...prevClients, newClient]);
+    const newId = await addClient(newClientData);
+    setClients((prevClients) => [...prevClients, { id: newId, ...newClientData }]);
     form.reset();
     setIsDialogOpen(false);
   }
@@ -134,7 +160,11 @@ export default function ClientsPage() {
         </Dialog>
       </div>
       
-      {clients.length > 0 ? (
+      {loading ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({length: 3}).map((_, i) => <ClientCardSkeleton key={i} />)}
+        </div>
+      ) : clients.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {clients.map((client) => (
             <ClientCard key={client.id} client={client} />

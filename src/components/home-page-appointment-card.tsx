@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { Appointment } from "@/lib/data";
+import type { Appointment } from "@/lib/types";
 import { Clock, MapPin, User } from "lucide-react";
 import { useLanguage } from "@/context/language-context";
 import { useMemo } from "react";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -25,19 +25,43 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ClubCard } from "@/components/club-card";
-import { clubs as initialClubs, type Club } from "@/lib/data";
+import { type Club } from "@/lib/types";
+import { getClubs, addClub } from "@/lib/services";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/context/language-context";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const getClubSchema = (t: (key: string) => string) => z.object({
   name: z.string().min(2, { message: t('zod.club.name.min') }),
   description: z.string().min(10, { message: t('zod.club.description.min') }),
 });
 
+const ClubCardSkeleton = () => (
+  <div className="p-4 border rounded-lg space-y-3">
+    <div className="flex items-center gap-4">
+      <Skeleton className="h-12 w-12 rounded-full" />
+      <Skeleton className="h-6 w-32" />
+    </div>
+    <Skeleton className="h-4 w-full" />
+    <Skeleton className="h-4 w-5/6" />
+  </div>
+)
+
 export default function ClubsPage() {
   const { t } = useLanguage();
-  const [clubs, setClubs] = useState<Club[]>(initialClubs);
+  const [clubs, setClubs] = useState<Club[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    async function loadClubs() {
+      setLoading(true);
+      const clubsData = await getClubs();
+      setClubs(clubsData);
+      setLoading(false);
+    }
+    loadClubs();
+  }, []);
 
   const clubSchema = useMemo(() => getClubSchema(t), [t]);
 
@@ -49,13 +73,13 @@ export default function ClubsPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof clubSchema>) {
-    const newClub: Club = {
-      id: clubs.length + 1,
+  async function onSubmit(values: z.infer<typeof clubSchema>) {
+    const newClubData = {
       ...values,
       avatarUrl: `https://placehold.co/150x150.png`,
     };
-    setClubs((prevClubs) => [...prevClubs, newClub]);
+    const newId = await addClub(newClubData);
+    setClubs((prevClubs) => [...prevClubs, {id: newId, ...newClubData}]);
     form.reset();
     setIsDialogOpen(false);
   }
@@ -120,7 +144,11 @@ export default function ClubsPage() {
         </Dialog>
       </div>
       
-      {clubs.length > 0 ? (
+      {loading ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({length: 3}).map((_, i) => <ClubCardSkeleton key={i} />)}
+        </div>
+      ) : clubs.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {clubs.map((club) => (
             <ClubCard key={club.id} club={club} />

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { Client } from "@/lib/data";
+import type { Client } from "@/lib/types";
 import { Mail, School } from "lucide-react";
 
 type ClientCardProps = {

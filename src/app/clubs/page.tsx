@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { ClubCard } from "@/components/club-card";
 import { clubs as initialClubs, type Club } from "@/lib/data";
 import { Textarea } from "@/components/ui/textarea";
+import { useLanguage } from "@/context/language-context";
 
 const clubSchema = z.object({
   name: z.string().min(2, { message: "Club name must be at least 2 characters." }),
@@ -34,6 +35,7 @@ const clubSchema = z.object({
 });
 
 export default function ClubsPage() {
+  const { t } = useLanguage();
   const [clubs, setClubs] = useState<Club[]>(initialClubs);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -60,23 +62,23 @@ export default function ClubsPage() {
     <div className="container py-6 space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Clubs</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('clubs.page_title')}</h1>
           <p className="text-muted-foreground">
-            Discover and join student clubs.
+            {t('clubs.page_description')}
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
-              Add Club
+              {t('clubs.add_club')}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Add New Club</DialogTitle>
+              <DialogTitle>{t('dialog.club.add_title')}</DialogTitle>
               <DialogDescription>
-                Fill in the details below to add a new club.
+                {t('dialog.club.add_description')}
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -86,9 +88,9 @@ export default function ClubsPage() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Club Name</FormLabel>
+                      <FormLabel>{t('dialog.club.name_label')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Debate Club" {...field} />
+                        <Input placeholder={t('dialog.club.name_placeholder')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -99,16 +101,16 @@ export default function ClubsPage() {
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>{t('dialog.club.description_label')}</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="A club for..." {...field} />
+                        <Textarea placeholder={t('dialog.club.description_placeholder')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <DialogFooter>
-                  <Button type="submit">Save Club</Button>
+                  <Button type="submit">{t('dialog.club.save_button')}</Button>
                 </DialogFooter>
               </form>
             </Form>
@@ -127,10 +129,10 @@ export default function ClubsPage() {
             <div className="flex flex-col items-center gap-2 text-center py-20">
                 <Users className="h-12 w-12 text-muted-foreground" />
                 <h3 className="text-2xl font-bold tracking-tight">
-                    No Clubs Found
+                    {t('clubs.no_clubs_title')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                    Add a new club to get started.
+                    {t('clubs.no_clubs_description')}
                 </p>
             </div>
         </div>

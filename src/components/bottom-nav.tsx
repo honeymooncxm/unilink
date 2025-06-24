@@ -4,16 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, CalendarDays, Users, User as ProfileIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/context/language-context";
 
 const navItems = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/schedule", label: "Schedule", icon: CalendarDays },
-  { href: "/clubs", label: "Clubs", icon: Users },
-  { href: "/profile", label: "Profile", icon: ProfileIcon },
+  { href: "/", labelKey: "nav.home", icon: Home },
+  { href: "/schedule", labelKey: "nav.schedule", icon: CalendarDays },
+  { href: "/clubs", labelKey: "nav.clubs", icon: Users },
+  { href: "/profile", labelKey: "nav.profile", icon: ProfileIcon },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-primary text-primary-foreground/70 transition-colors duration-300">
@@ -30,7 +32,7 @@ export function BottomNav() {
             )}
           >
             <item.icon className="h-6 w-6" />
-            <span>{item.label}</span>
+            <span>{t(item.labelKey)}</span>
           </Link>
         ))}
       </div>

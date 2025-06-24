@@ -19,6 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from '@/context/language-context';
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name is too short"),
@@ -41,6 +42,7 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [user, setUser] = useState<User>(initialUser);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -51,8 +53,8 @@ export default function ProfilePage() {
     setUser(values);
     setIsEditing(false);
     toast({
-      title: "Profile Updated",
-      description: "Your information has been successfully saved.",
+      title: t('profile.update_toast_title'),
+      description: t('profile.update_toast_description'),
     });
   }
 
@@ -60,14 +62,14 @@ export default function ProfilePage() {
     <div className="container py-6 space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-            <h1 className="text-3xl font-bold tracking-tight">My Profile</h1>
-            <p className="text-muted-foreground">Your personal and academic information.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t('profile.page_title')}</h1>
+            <p className="text-muted-foreground">{t('profile.page_description')}</p>
         </div>
         {!isEditing && (
             <Button onClick={() => {
                 form.reset(user);
                 setIsEditing(true);
-            }}>Edit Profile</Button>
+            }}>{t('profile.edit_button')}</Button>
         )}
       </div>
 
@@ -86,11 +88,11 @@ export default function ProfilePage() {
                 </CardHeader>
                 <CardContent>
                     <div className="grid gap-6 md:grid-cols-2">
-                        <ProfileDetail label="Email Address" value={user.email} />
-                        <ProfileDetail label="University" value={user.university} />
-                        <ProfileDetail label="Faculty" value={user.faculty} />
-                        <ProfileDetail label="Course" value={user.course} />
-                        <ProfileDetail label="Group" value={user.group} />
+                        <ProfileDetail label={t('profile.email_label')} value={user.email} />
+                        <ProfileDetail label={t('profile.university_label')} value={user.university} />
+                        <ProfileDetail label={t('profile.faculty_label')} value={user.faculty} />
+                        <ProfileDetail label={t('profile.course_label')} value={user.course} />
+                        <ProfileDetail label={t('profile.group_label')} value={user.group} />
                     </div>
                 </CardContent>
             </div>
@@ -99,8 +101,8 @@ export default function ProfilePage() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                   <CardHeader>
-                      <CardTitle>Edit Profile</CardTitle>
-                      <CardDescription>Update your personal and academic information.</CardDescription>
+                      <CardTitle>{t('profile.edit_title')}</CardTitle>
+                      <CardDescription>{t('profile.edit_description')}</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <FormField
@@ -108,7 +110,7 @@ export default function ProfilePage() {
                       name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Full Name</FormLabel>
+                          <FormLabel>{t('profile.name_label')}</FormLabel>
                           <FormControl><Input {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
@@ -119,7 +121,7 @@ export default function ProfilePage() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email Address</FormLabel>
+                          <FormLabel>{t('profile.email_label')}</FormLabel>
                           <FormControl><Input type="email" {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
@@ -130,7 +132,7 @@ export default function ProfilePage() {
                       name="description"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Description</FormLabel>
+                          <FormLabel>{t('profile.description_label')}</FormLabel>
                           <FormControl><Textarea {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
@@ -142,7 +144,7 @@ export default function ProfilePage() {
                         name="university"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>University</FormLabel>
+                            <FormLabel>{t('profile.university_label')}</FormLabel>
                             <FormControl><Input {...field} /></FormControl>
                             <FormMessage />
                           </FormItem>
@@ -153,7 +155,7 @@ export default function ProfilePage() {
                         name="faculty"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Faculty</FormLabel>
+                            <FormLabel>{t('profile.faculty_label')}</FormLabel>
                             <FormControl><Input {...field} /></FormControl>
                             <FormMessage />
                           </FormItem>
@@ -164,7 +166,7 @@ export default function ProfilePage() {
                         name="course"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Course</FormLabel>
+                            <FormLabel>{t('profile.course_label')}</FormLabel>
                             <FormControl><Input type="number" {...field} /></FormControl>
                             <FormMessage />
                           </FormItem>
@@ -175,7 +177,7 @@ export default function ProfilePage() {
                         name="group"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Group</FormLabel>
+                            <FormLabel>{t('profile.group_label')}</FormLabel>
                             <FormControl><Input {...field} /></FormControl>
                             <FormMessage />
                           </FormItem>
@@ -184,8 +186,8 @@ export default function ProfilePage() {
                     </div>
                   </CardContent>
                   <CardFooter className="justify-end gap-2">
-                      <Button variant="ghost" type="button" onClick={() => setIsEditing(false)}>Cancel</Button>
-                      <Button type="submit">Save Changes</Button>
+                      <Button variant="ghost" type="button" onClick={() => setIsEditing(false)}>{t('profile.cancel_button')}</Button>
+                      <Button type="submit">{t('profile.save_button')}</Button>
                   </CardFooter>
               </form>
             </Form>

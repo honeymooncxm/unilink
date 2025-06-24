@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { AppHeader } from '@/components/header';
 import { BottomNav } from '@/components/bottom-nav';
 import { ThemeProvider } from '@/components/theme-provider';
+import { LanguageProvider } from '@/context/language-context';
 
 export const metadata: Metadata = {
   title: 'UniLink',
@@ -26,19 +27,21 @@ export default function RootLayout({
         ></link>
       </head>
       <body className="font-body antialiased bg-background">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="relative flex min-h-screen w-full flex-col">
-            <AppHeader />
-            <main className="flex-1 container py-6 pb-20 md:pb-6">{children}</main>
-            <BottomNav />
-          </div>
-          <Toaster />
-        </ThemeProvider>
+        <LanguageProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange={false}
+          >
+            <div className="relative flex min-h-screen w-full flex-col">
+              <AppHeader />
+              <main className="flex-1 container py-6 pb-20 md:pb-6">{children}</main>
+              <BottomNav />
+            </div>
+            <Toaster />
+          </ThemeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

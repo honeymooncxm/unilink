@@ -50,15 +50,11 @@ import {
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge";
 import { appointments as initialAppointments, type Appointment } from '@/lib/data';
-import { Calendar, Clock, MapPin, Plus, User, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Calendar, Clock, MapPin, Plus, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/context/language-context';
 
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-const dayNameMap: { [key: string]: string } = { Monday: "Понедельник", Tuesday: "Вторник", Wednesday: "Среда", Thursday: "Четверг", Friday: "Пятница", Saturday: "Суббота", Sunday: "Воскресенье" };
-const dayAbbrMap: { [key: string]: string } = { Monday: "Пн", Tuesday: "Вт", Wednesday: "Ср", Thursday: "Чт", Friday: "Пт", Saturday: "Сб", Sunday: "Вс" };
-const typeMap: { [key: string]: string } = { Lecture: "Лекция", Seminar: "Семинар", Lab: "Лаб. работа" };
-const typeReverseMap: { [key: string]: string } = { "Лекция": "Lecture", "Семинар": "Seminar", "Лаб. работа": "Lab" };
-
 
 const appointmentSchema = z.object({
   course: z.string().min(2, "Название курса слишком короткое"),
@@ -81,12 +77,40 @@ const defaultFormValues = {
 };
 
 export default function SchedulePage() {
+  const { t } = useLanguage();
   const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
   const [selectedDay, setSelectedDay] = useState('Monday');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
   const [deletingAppointment, setDeletingAppointment] = useState<Appointment | null>(null);
+
+  const dayNameMap: { [key: string]: string } = useMemo(() => ({
+    Monday: t('schedule.day.monday'),
+    Tuesday: t('schedule.day.tuesday'),
+    Wednesday: t('schedule.day.wednesday'),
+    Thursday: t('schedule.day.thursday'),
+    Friday: t('schedule.day.friday'),
+    Saturday: t('schedule.day.saturday'),
+    Sunday: t('schedule.day.sunday'),
+  }), [t]);
+
+  const dayAbbrMap: { [key: string]: string } = useMemo(() => ({
+    Monday: t('schedule.day.monday_abbr'),
+    Tuesday: t('schedule.day.tuesday_abbr'),
+    Wednesday: t('schedule.day.wednesday_abbr'),
+    Thursday: t('schedule.day.thursday_abbr'),
+    Friday: t('schedule.day.friday_abbr'),
+    Saturday: t('schedule.day.saturday_abbr'),
+    Sunday: t('schedule.day.sunday_abbr'),
+  }), [t]);
+
+  const typeMap: { [key: string]: string } = useMemo(() => ({
+    Lecture: t('schedule.type.lecture'),
+    Seminar: t('schedule.type.seminar'),
+    Lab: t('schedule.type.lab'),
+  }), [t]);
+
 
   useEffect(() => {
     const jsDayIndex = new Date().getDay();
@@ -160,14 +184,14 @@ export default function SchedulePage() {
   return (
     <div className="py-6 space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Ваше расписание</h1>
+        <h1 className="text-2xl font-bold">{t('schedule.page_title')}</h1>
         <Button onClick={() => {
           setEditingAppointment(null);
           form.reset(defaultFormValues);
           setIsDialogOpen(true)
         }}>
             <Plus className="mr-2 h-4 w-4" />
-            Добавить
+            {t('schedule.add_appointment')}
         </Button>
       </div>
 
@@ -180,9 +204,9 @@ export default function SchedulePage() {
       }}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>{isEditing ? 'Редактировать запись' : 'Добавить запись'}</DialogTitle>
+              <DialogTitle>{isEditing ? t('dialog.appointment.edit_title') : t('dialog.appointment.add_title')}</DialogTitle>
               <DialogDescription>
-                {isEditing ? 'Обновите детали вашего занятия.' : 'Заполните детали, чтобы добавить новое занятие.'}
+                {isEditing ? t('dialog.appointment.edit_description') : t('dialog.appointment.add_description')}
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -192,8 +216,8 @@ export default function SchedulePage() {
                   name="course"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Курс</FormLabel>
-                      <FormControl><Input placeholder="e.g. Introduction to AI" {...field} /></FormControl>
+                      <FormLabel>{t('dialog.appointment.course_label')}</FormLabel>
+                      <FormControl><Input placeholder={t('dialog.appointment.course_placeholder')} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -203,8 +227,8 @@ export default function SchedulePage() {
                   name="professor"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Преподаватель</FormLabel>
-                      <FormControl><Input placeholder="e.g. Dr. Alan Turing" {...field} /></FormControl>
+                      <FormLabel>{t('dialog.appointment.professor_label')}</FormLabel>
+                      <FormControl><Input placeholder={t('dialog.appointment.professor_placeholder')} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -214,8 +238,8 @@ export default function SchedulePage() {
                   name="room"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Аудитория / Кабинет</FormLabel>
-                      <FormControl><Input placeholder="e.g. Room 305" {...field} /></FormControl>
+                      <FormLabel>{t('dialog.appointment.room_label')}</FormLabel>
+                      <FormControl><Input placeholder={t('dialog.appointment.room_placeholder')} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -226,7 +250,7 @@ export default function SchedulePage() {
                     name="startTime"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Время начала</FormLabel>
+                        <FormLabel>{t('dialog.appointment.start_time_label')}</FormLabel>
                         <FormControl><Input type="time" className="text-center" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -237,7 +261,7 @@ export default function SchedulePage() {
                     name="endTime"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Время окончания</FormLabel>
+                        <FormLabel>{t('dialog.appointment.end_time_label')}</FormLabel>
                         <FormControl><Input type="time" className="text-center" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -250,10 +274,10 @@ export default function SchedulePage() {
                     name="day"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>День</FormLabel>
+                        <FormLabel>{t('dialog.appointment.day_label')}</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger><SelectValue placeholder="Выберите день" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder={t('dialog.appointment.day_placeholder')} /></SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             {daysOfWeek.map(day => <SelectItem key={day} value={day}>{dayNameMap[day]}</SelectItem>)}
@@ -268,10 +292,10 @@ export default function SchedulePage() {
                     name="type"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Тип</FormLabel>
+                        <FormLabel>{t('dialog.appointment.type_label')}</FormLabel>
                          <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger><SelectValue placeholder="Выберите тип" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder={t('dialog.appointment.type_placeholder')} /></SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="Lecture">{typeMap['Lecture']}</SelectItem>
@@ -285,7 +309,7 @@ export default function SchedulePage() {
                   />
                 </div>
                 <DialogFooter>
-                  <Button type="submit">{isEditing ? 'Сохранить изменения' : 'Добавить запись'}</Button>
+                  <Button type="submit">{isEditing ? t('dialog.appointment.save_button') : t('dialog.appointment.add_button')}</Button>
                 </DialogFooter>
               </form>
             </Form>
@@ -359,11 +383,11 @@ export default function SchedulePage() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => handleEditClick(appointment)}>
                                 <Pencil className="mr-2 h-4 w-4" />
-                                <span>Редактировать</span>
+                                <span>{t('schedule.edit')}</span>
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleDeleteClick(appointment)} className="text-destructive focus:text-destructive">
                                 <Trash2 className="mr-2 h-4 w-4" />
-                                <span>Удалить</span>
+                                <span>{t('schedule.delete')}</span>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -375,7 +399,7 @@ export default function SchedulePage() {
             })
           ) : (
              <div className="text-center py-20 rounded-lg border border-dashed">
-                <p className="text-muted-foreground">Нет занятий на {dayNameMap[selectedDay].toLowerCase()}.</p>
+                <p className="text-muted-foreground">{t('schedule.empty_text')} {dayNameMap[selectedDay]?.toLowerCase()}.</p>
               </div>
           )}
         </div>
@@ -383,17 +407,17 @@ export default function SchedulePage() {
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
             <AlertDialogHeader>
-            <AlertDialogTitle>Вы уверены?</AlertDialogTitle>
+            <AlertDialogTitle>{t('dialog.delete.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-                Это действие нельзя будет отменить. Запись будет удалена из вашего расписания навсегда.
+                {t('dialog.delete.description')}
             </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-            <AlertDialogCancel>Отмена</AlertDialogCancel>
+            <AlertDialogCancel>{t('dialog.delete.cancel')}</AlertDialogCancel>
             <AlertDialogAction 
                 onClick={confirmDelete} 
                 className={buttonVariants({ variant: "destructive" })}>
-                Удалить
+                {t('dialog.delete.confirm')}
             </AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>

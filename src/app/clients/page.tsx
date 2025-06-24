@@ -26,6 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { ClientCard } from "@/components/client-card";
 import { clients as initialClients, type Client } from "@/lib/data";
+import { useLanguage } from "@/context/language-context";
 
 const clientSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -34,6 +35,7 @@ const clientSchema = z.object({
 });
 
 export default function ClientsPage() {
+  const { t } = useLanguage();
   const [clients, setClients] = useState<Client[]>(initialClients);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -61,23 +63,23 @@ export default function ClientsPage() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Clients</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('clients.page_title')}</h1>
           <p className="text-muted-foreground">
-            Manage client profiles and information.
+            {t('clients.page_description')}
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
-              Add Client
+              {t('clients.add_client')}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Add New Client</DialogTitle>
+              <DialogTitle>{t('dialog.client.add_title')}</DialogTitle>
               <DialogDescription>
-                Fill in the details below to add a new client.
+                {t('dialog.client.add_description')}
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -87,9 +89,9 @@ export default function ClientsPage() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>{t('dialog.client.name_label')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} />
+                        <Input placeholder={t('dialog.client.name_placeholder')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -100,9 +102,9 @@ export default function ClientsPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t('dialog.client.email_label')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="john.doe@example.com" {...field} />
+                        <Input placeholder={t('dialog.client.email_placeholder')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -113,16 +115,16 @@ export default function ClientsPage() {
                   name="university"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>University</FormLabel>
+                      <FormLabel>{t('dialog.client.university_label')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="State University" {...field} />
+                        <Input placeholder={t('dialog.client.university_placeholder')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <DialogFooter>
-                  <Button type="submit">Save Client</Button>
+                  <Button type="submit">{t('dialog.client.save_button')}</Button>
                 </DialogFooter>
               </form>
             </Form>
@@ -141,10 +143,10 @@ export default function ClientsPage() {
             <div className="flex flex-col items-center gap-2 text-center py-20">
                 <Users className="h-12 w-12 text-muted-foreground" />
                 <h3 className="text-2xl font-bold tracking-tight">
-                    No Clients Found
+                    {t('clients.no_clients_title')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                    Add a new client to get started.
+                    {t('clients.no_clients_description')}
                 </p>
             </div>
         </div>

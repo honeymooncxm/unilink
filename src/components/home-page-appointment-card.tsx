@@ -2,6 +2,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Appointment } from "@/lib/data";
 import { Clock, MapPin, User } from "lucide-react";
+import { useLanguage } from "@/context/language-context";
+import { useMemo } from "react";
 
 type HomePageAppointmentCardProps = {
   appointment: Appointment;
@@ -9,6 +11,13 @@ type HomePageAppointmentCardProps = {
 
 export function HomePageAppointmentCard({ appointment }: HomePageAppointmentCardProps) {
   const [startTime, endTime] = appointment.timeRange.split(' - ');
+  const { t } = useLanguage();
+
+  const typeMap: { [key: string]: string } = useMemo(() => ({
+    Lecture: t('schedule.type.lecture'),
+    Seminar: t('schedule.type.seminar'),
+    Lab: t('schedule.type.lab'),
+  }), [t]);
 
   return (
     <Card className="hover:border-primary/50 transition-colors duration-300">
@@ -23,7 +32,7 @@ export function HomePageAppointmentCard({ appointment }: HomePageAppointmentCard
           <div className="flex justify-between items-start">
             <h3 className="font-bold">{appointment.course}</h3>
             <Badge variant={appointment.type === 'Lecture' ? 'default' : 'secondary'} className="bg-primary/80 text-primary-foreground">
-                {appointment.type}
+                {typeMap[appointment.type]}
             </Badge>
           </div>
           <div className="text-muted-foreground text-xs space-y-1">

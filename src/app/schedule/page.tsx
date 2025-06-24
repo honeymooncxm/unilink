@@ -126,12 +126,20 @@ export default function SchedulePage() {
       .sort((a, b) => a.timeRange.localeCompare(b.timeRange));
   }, [appointments, selectedDay]);
 
-  function handleEditClick(appointment: Appointment) {
-    setEditingAppointment(appointment);
-    const [startTime, endTime] = appointment.timeRange.split(' - ');
-    form.reset({ ...appointment, startTime, endTime });
-    setIsDialogOpen(true);
-  }
+function handleEditClick(appointment: Appointment) {
+  const validDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
+  const isValidDay = validDays.includes(appointment.day as any);
+
+  setEditingAppointment(appointment);
+  const [startTime = "09:00", endTime = "10:30"] = appointment.timeRange.split(" - "); // Значения по умолчанию
+  form.reset({
+    ...appointment,
+    startTime: appointment.startTime || startTime,
+    endTime: appointment.endTime || endTime,
+    day: isValidDay ? appointment.day : "Monday", // Приведение к допустимому значению
+  });
+  setIsDialogOpen(true);
+}
 
   function handleDeleteClick(appointment: Appointment) {
     setDeletingAppointmentId(appointment.id);
@@ -147,18 +155,31 @@ export default function SchedulePage() {
     setIsDeleteDialogOpen(false);
   }
 
-  async function onSubmit(values: z.infer<typeof appointmentSchema>) {
-  const appointmentData = {
+async function onSubmit(values: z.infer<typeof appointmentSchema>) {
+  const appointmentData: Appointment = {
+    id: editingAppointment ? editingAppointment.id : crypto.randomUUID(), // Генерация ID
     course: values.course,
     professor: values.professor,
     room: values.room,
-    day: values.day,
+    day: values.day, // Тип уже гарантирован схемой Zod
     startTime: values.startTime,
     endTime: values.endTime,
+    timeRange: `${values.startTime} - ${values.endTime}`,
     type: values.type,
-    timeRange: `${values.startTime} - ${values.endTime}`, // Формируем timeRange
-    id: editingAppointment ? editingAppointment.id : crypto.randomUUID(), // Добавляем id для updateAppointment
   };
+
+  if (editingAppointment) {
+    await updateAppointment(editingAppointment.id, appointmentData);
+  } else {
+    const { id, ...addData } = appointmentData; // Исключить id для addAppointment
+    await addAppointment(addData);
+  }
+
+  await fetchAppointments();
+  setIsDialogOpen(false);
+  setEditingAppointment(null);
+  form.reset(defaultFormValues);
+}
 
   if (editingAppointment) {
     await updateAppointment(editingAppointment.id, appointmentData);

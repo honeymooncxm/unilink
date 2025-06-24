@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -54,6 +54,7 @@ import { Calendar, Clock, MapPin, Plus, User, MoreHorizontal, Pencil, Trash2 } f
 import { cn } from '@/lib/utils';
 
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const abbreviatedDaysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const appointmentSchema = z.object({
   course: z.string().min(2, "Course name is too short"),
@@ -82,6 +83,14 @@ export default function SchedulePage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
   const [deletingAppointment, setDeletingAppointment] = useState<Appointment | null>(null);
+
+  useEffect(() => {
+    // Set the selected day to the current day on component mount
+    const jsDayIndex = new Date().getDay(); // 0 for Sunday, 1 for Monday, etc.
+    // The app's daysOfWeek array starts with Monday.
+    const appDayIndex = jsDayIndex === 0 ? 6 : jsDayIndex - 1;
+    setSelectedDay(daysOfWeek[appDayIndex]);
+  }, []);
 
   const isEditing = !!editingAppointment;
 
@@ -277,17 +286,26 @@ export default function SchedulePage() {
           </DialogContent>
         </Dialog>
       
-      <div className="flex space-x-1 sm:space-x-2 overflow-x-auto pb-2 -mx-4 px-4">
-        {daysOfWeek.map(day => (
-          <Button 
-            key={day} 
-            variant={selectedDay === day ? "default" : "ghost"}
-            onClick={() => setSelectedDay(day)}
-            className="shrink-0"
-          >
-            {day}
-          </Button>
-        ))}
+      <div className="w-full overflow-x-auto">
+        <div className="inline-flex h-auto w-full items-center justify-center space-x-1 rounded-lg bg-muted p-1">
+          {daysOfWeek.map((day, index) => (
+            <Button
+              key={day}
+              onClick={() => setSelectedDay(day)}
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "w-full px-3 py-2 text-sm font-medium sm:py-1.5",
+                selectedDay === day
+                  ? "bg-background text-foreground shadow-sm hover:bg-background/90"
+                  : "text-muted-foreground hover:bg-background/50 hover:text-foreground"
+              )}
+            >
+              <span className="hidden sm:inline">{day}</span>
+              <span className="sm:hidden">{abbreviatedDaysOfWeek[index]}</span>
+            </Button>
+          ))}
+        </div>
       </div>
       
       <div>

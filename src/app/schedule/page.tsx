@@ -286,7 +286,7 @@ export default function SchedulePage() {
           </DialogContent>
         </Dialog>
       
-      <div className="w-full overflow-x-auto">
+      <div className="w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="inline-flex h-auto items-center justify-center space-x-1 rounded-lg bg-muted p-1">
           {daysOfWeek.map((day, index) => (
             <Button

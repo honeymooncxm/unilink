@@ -1,6 +1,7 @@
 "use client";
 
-import { user, appointments } from '@/lib/data';
+import { useState, useEffect } from 'react';
+import { user, appointments, type Appointment } from '@/lib/data';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -11,9 +12,15 @@ import { useLanguage } from '@/context/language-context';
 
 export default function Home() {
   const { t } = useLanguage();
-  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const currentDayName = daysOfWeek[new Date().getDay()];
-  const todayAppointments = appointments.filter(app => app.day === currentDayName);
+  const [todayAppointments, setTodayAppointments] = useState<Appointment[]>([]);
+  
+  useEffect(() => {
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const currentDayName = daysOfWeek[new Date().getDay()];
+    const filteredAppointments = appointments.filter(app => app.day === currentDayName);
+    setTodayAppointments(filteredAppointments);
+  }, []);
+
 
   return (
     <div className="container flex flex-col gap-8 animate-in fade-in duration-500 py-6">

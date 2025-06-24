@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -29,15 +29,17 @@ import { clubs as initialClubs, type Club } from "@/lib/data";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/context/language-context";
 
-const clubSchema = z.object({
-  name: z.string().min(2, { message: "Club name must be at least 2 characters." }),
-  description: z.string().min(10, { message: "Description is too short." }),
+const getClubSchema = (t: (key: string) => string) => z.object({
+  name: z.string().min(2, { message: t('zod.club.name.min') }),
+  description: z.string().min(10, { message: t('zod.club.description.min') }),
 });
 
 export default function ClubsPage() {
   const { t } = useLanguage();
   const [clubs, setClubs] = useState<Club[]>(initialClubs);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const clubSchema = useMemo(() => getClubSchema(t), [t]);
 
   const form = useForm<z.infer<typeof clubSchema>>({
     resolver: zodResolver(clubSchema),

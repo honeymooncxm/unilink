@@ -111,4 +111,23 @@ export const en = {
   'profile.save_button': 'Save Changes',
   'profile.update_toast_title': 'Profile Updated',
   'profile.update_toast_description': 'Your information has been successfully saved.',
+
+  // Zod validation messages
+  'zod.course.min': 'Course name must be at least 2 characters.',
+  'zod.professor.min': 'Professor name must be at least 2 characters.',
+  'zod.room.min': 'Room is required.',
+  'zod.time.invalid': 'Invalid time format (HH:MM).',
+  'zod.club.name.min': 'Club name must be at least 2 characters.',
+  'zod.club.description.min': 'Description is too short.',
+  'zod.client.name.min': 'Name must be at least 2 characters.',
+  'zod.client.email.invalid': 'Invalid email address.',
+  'zod.client.university.min': 'University name is required.',
+  'zod.profile.name.min': 'Name is too short.',
+  'zod.profile.description.min': 'Description is too short.',
+  'zod.profile.email.invalid': 'Invalid email address.',
+  'zod.profile.university.min': 'University name is too short.',
+  'zod.profile.faculty.min': 'Faculty name is too short.',
+  'zod.profile.course.min': 'Course must be at least 1.',
+  'zod.profile.course.max': 'Course must be at most 7.',
+  'zod.profile.group.min': 'Group name is too short.',
 };

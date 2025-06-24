@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -28,16 +28,18 @@ import { ClientCard } from "@/components/client-card";
 import { clients as initialClients, type Client } from "@/lib/data";
 import { useLanguage } from "@/context/language-context";
 
-const clientSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  email: z.string().email({ message: "Invalid email address." }),
-  university: z.string().min(3, { message: "University name is required." }),
+const getClientSchema = (t: (key: string) => string) => z.object({
+  name: z.string().min(2, { message: t('zod.client.name.min') }),
+  email: z.string().email({ message: t('zod.client.email.invalid') }),
+  university: z.string().min(3, { message: t('zod.client.university.min') }),
 });
 
 export default function ClientsPage() {
   const { t } = useLanguage();
   const [clients, setClients] = useState<Client[]>(initialClients);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const clientSchema = useMemo(() => getClientSchema(t), [t]);
 
   const form = useForm<z.infer<typeof clientSchema>>({
     resolver: zodResolver(clientSchema),

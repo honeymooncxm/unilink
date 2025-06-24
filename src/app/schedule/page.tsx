@@ -56,13 +56,13 @@ import { useLanguage } from '@/context/language-context';
 
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-const appointmentSchema = z.object({
-  course: z.string().min(2, "Название курса слишком короткое"),
-  professor: z.string().min(2, "Имя преподавателя слишком короткое"),
-  room: z.string().min(1, "Требуется указать аудиторию"),
+const getAppointmentSchema = (t: (key: string) => string) => z.object({
+  course: z.string().min(2, { message: t('zod.course.min') }),
+  professor: z.string().min(2, { message: t('zod.professor.min') }),
+  room: z.string().min(1, { message: t('zod.room.min') }),
   day: z.enum(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]),
-  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Неверный формат времени (ЧЧ:ММ)"),
-  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Неверный формат времени (ЧЧ:ММ)"),
+  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: t('zod.time.invalid') }),
+  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: t('zod.time.invalid') }),
   type: z.enum(["Lecture", "Seminar", "Lab"]),
 });
 
@@ -119,6 +119,8 @@ export default function SchedulePage() {
   }, []);
 
   const isEditing = !!editingAppointment;
+
+  const appointmentSchema = useMemo(() => getAppointmentSchema(t), [t]);
 
   const form = useForm<z.infer<typeof appointmentSchema>>({
     resolver: zodResolver(appointmentSchema),

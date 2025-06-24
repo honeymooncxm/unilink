@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,15 +21,16 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from '@/context/language-context';
 
-const profileSchema = z.object({
-  name: z.string().min(2, "Name is too short"),
-  description: z.string().min(10, "Description is too short"),
-  email: z.string().email(),
-  university: z.string().min(3, "University name is too short"),
-  faculty: z.string().min(3, "Faculty name is too short"),
-  course: z.coerce.number().min(1).max(7),
-  group: z.string().min(2, "Group name is too short"),
+const getProfileSchema = (t: (key: string) => string) => z.object({
+  name: z.string().min(2, { message: t('zod.profile.name.min') }),
+  description: z.string().min(10, { message: t('zod.profile.description.min') }),
+  email: z.string().email({ message: t('zod.profile.email.invalid') }),
+  university: z.string().min(3, { message: t('zod.profile.university.min') }),
+  faculty: z.string().min(3, { message: t('zod.profile.faculty.min') }),
+  course: z.coerce.number().min(1, { message: t('zod.profile.course.min') }).max(7, { message: t('zod.profile.course.max') }),
+  group: z.string().min(2, { message: t('zod.profile.group.min') }),
 });
+
 
 const ProfileDetail = ({ label, value }: { label: string; value: string | number }) => (
     <div className="flex flex-col space-y-1">
@@ -43,6 +44,8 @@ export default function ProfilePage() {
   const [user, setUser] = useState<User>(initialUser);
   const { toast } = useToast();
   const { t } = useLanguage();
+
+  const profileSchema = useMemo(() => getProfileSchema(t), [t]);
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),

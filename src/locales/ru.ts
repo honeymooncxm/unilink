@@ -111,4 +111,23 @@ export const ru = {
   'profile.save_button': 'Сохранить изменения',
   'profile.update_toast_title': 'Профиль обновлен',
   'profile.update_toast_description': 'Ваша информация была успешно сохранена.',
+
+  // Zod validation messages
+  'zod.course.min': 'Название курса должно быть не менее 2 символов.',
+  'zod.professor.min': 'Имя преподавателя должно быть не менее 2 символов.',
+  'zod.room.min': 'Требуется указать аудиторию.',
+  'zod.time.invalid': 'Неверный формат времени (ЧЧ:ММ).',
+  'zod.club.name.min': 'Название клуба должно быть не менее 2 символов.',
+  'zod.club.description.min': 'Описание слишком короткое.',
+  'zod.client.name.min': 'Имя должно быть не менее 2 символов.',
+  'zod.client.email.invalid': 'Неверный адрес электронной почты.',
+  'zod.client.university.min': 'Требуется указать название университета.',
+  'zod.profile.name.min': 'Имя слишком короткое.',
+  'zod.profile.description.min': 'Описание слишком короткое.',
+  'zod.profile.email.invalid': 'Неверный адрес электронной почты.',
+  'zod.profile.university.min': 'Название университета слишком короткое.',
+  'zod.profile.faculty.min': 'Название факультета слишком короткое.',
+  'zod.profile.course.min': 'Курс должен быть не менее 1.',
+  'zod.profile.course.max': 'Курс должен быть не более 7.',
+  'zod.profile.group.min': 'Название группы слишком короткое.',
 };

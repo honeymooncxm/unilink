@@ -111,4 +111,23 @@ export const uz = {
   'profile.save_button': 'O\'zgarishlarni saqlash',
   'profile.update_toast_title': 'Profil yangilandi',
   'profile.update_toast_description': 'Sizning ma\'lumotlaringiz muvaffaqiyatli saqlandi.',
+
+  // Zod validation messages
+  'zod.course.min': 'Kurs nomi kamida 2 ta belgidan iborat bo\'lishi kerak.',
+  'zod.professor.min': 'O\'qituvchi ismi kamida 2 ta belgidan iborat bo\'lishi kerak.',
+  'zod.room.min': 'Xonani ko\'rsatish talab etiladi.',
+  'zod.time.invalid': 'Noto\'g\'ri vaqt formati (SS:QQ).',
+  'zod.club.name.min': 'Klub nomi kamida 2 ta belgidan iborat bo\'lishi kerak.',
+  'zod.club.description.min': 'Tavsif juda qisqa.',
+  'zod.client.name.min': 'Ism kamida 2 ta belgidan iborat bo\'lishi kerak.',
+  'zod.client.email.invalid': 'Noto\'g\'ri elektron pochta manzili.',
+  'zod.client.university.min': 'Universitet nomini ko\'rsatish talab etiladi.',
+  'zod.profile.name.min': 'Ism juda qisqa.',
+  'zod.profile.description.min': 'Tavsif juda qisqa.',
+  'zod.profile.email.invalid': 'Noto\'g\'ri elektron pochta manzili.',
+  'zod.profile.university.min': 'Universitet nomi juda qisqa.',
+  'zod.profile.faculty.min': 'Fakultet nomi juda qisqa.',
+  'zod.profile.course.min': 'Kurs kamida 1 bo\'lishi kerak.',
+  'zod.profile.course.max': 'Kurs ko\'pi bilan 7 bo\'lishi kerak.',
+  'zod.profile.group.min': 'Guruh nomi juda qisqa.',
 };
